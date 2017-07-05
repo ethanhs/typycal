@@ -7,17 +7,14 @@ from cpython.mapping cimport *
 from collections import deque
 import sys
 
-include_files = ['<stdin>', 'C:\\Users\\ethanhs\\Documents\\typycal\\typycal\\test.py']
+include_files = {'<stdin>': None}
 
 
-test = False
 
-cpdef add_includes(str file):
-    include_files.append(file)
 
 cpdef unhook_frames():
     """
-    Unhook our custom frame evaluator. Called before system exit and
+    Unhook our custom frame evaluator. Called before system exit
     """
     cdef PyThreadState *state = PyThreadState_Get()
     state.interp.eval_frame = _PyEval_EvalFrameDefault
@@ -80,8 +77,10 @@ cdef PyObject* frame_evaluator(PyFrameObject *c_frame, int exc):
     # if we don't need to bail out, continue with normal analysis
 
     (nargs, args) = getargs(frame)
-    print("Frame args: " + ', '.join([str(arg) for arg in args]))
-
+    if nargs > 0:
+        print("Frame args: " + ', '.join([str(arg) for arg in args]))
+    else:
+        print("No args to frame")
     resolved_name = resolve_name(frame, nargs, args)
     print("Frame path: " + '->'.join(resolved_name))
 
@@ -91,6 +90,6 @@ cdef PyObject* frame_evaluator(PyFrameObject *c_frame, int exc):
     return ret
 
 
-cpdef hook_frames(build_types=True, check_types=False):
+cpdef hook_frames(str path):
     cdef PyThreadState *state = PyThreadState_Get()
     state.interp.eval_frame = frame_evaluator

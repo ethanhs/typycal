@@ -105,6 +105,3 @@ gen
 
 #vs code
 .vscode
-
-# generated source from cython
-*.c
