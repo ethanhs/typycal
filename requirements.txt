@@ -1,1 +1,3 @@
-setuptools
+setuptools>=28.8.0
+typed_ast>=1.0.4
+typed-astunparse>=2.0.0
