@@ -7,7 +7,7 @@ if sys.version_info < (3, 6):
     sys.exit(1)
 
 if sys.platform != 'win32':
-    cpp11 = ['-std=c++11']
+    cpp11 = ['--std=c++11']
 else:
     cpp11 = []
 
