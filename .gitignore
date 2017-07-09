@@ -105,3 +105,10 @@ gen
 
 #vs code
 .vscode
+
+.vs/
+typycal.pyproj
+vc140.idb
+vc140.pdb
+x64/
+*.sln

@@ -24,6 +24,8 @@ setup(
     classifiers=[
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
     ],
     keywords='typing type inference frame eval dynamic',
 )
+

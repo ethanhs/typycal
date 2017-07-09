@@ -1,1 +1,1 @@
-from .framehandler import hook_frames, unhook_frames
+from typycal import hook

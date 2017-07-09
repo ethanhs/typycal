@@ -27,3 +27,7 @@ creation of stub files for projects and allow more projects to take advantage of
 This project is in the planning stages. You can compile the typycal extension, and experiment with it,
 but the generation of stubs is _not_ started. Also it is likely the method of resolving arguments and such is not ideal,
 and the frame evaluation hook may cause Python to crash. The goal is to make the library as robust as possible.
+
+# Usage
+The plan is for there to be a module (written in C++ to be very fast) that dumps types from functions and methods in
+whitelisted files, and a command line tool to create settings files and generate stubs based on collected information.
