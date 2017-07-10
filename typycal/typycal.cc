@@ -11,24 +11,17 @@
 
 extern "C" {
 
-//TODO: distutils.sysconfig.get_python_lib(stdlib=True)
-
 // The main frame hook, generate the name of the type of objecstate, and serializes it to the store for later analysis.
 PyObject* typycal_evalframe(PyFrameObject* frame, int exc) {
-    PyObject* err = PyErr_Occurred();
-    bool error = false;
-    if (err != NULL) {
-        error = (PyObject_IsTrue(err) == 1) ? true : false;
-    }
-    if (exc || error) {
+    if (exc) {
         return _PyEval_EvalFrameDefault(frame, exc);
     } else {
-        const char* file_name = PyUnicode_AsUTF8(frame->f_code->co_filename);
-        const char* f_name = PyUnicode_AsUTF8(frame->f_code->co_name);
-        if (strcmp(f_name, "<module>") != 0 && whitelisted(std::string(file_name))) {
+        std::string file_name(PyUnicode_AsUTF8(frame->f_code->co_filename));
+        std::string f_name(PyUnicode_AsUTF8(frame->f_code->co_name));
+        if (whitelisted(std::string(file_name), std::string(f_name))) {
             PyObject* locals = PyObject_GetAttrString((PyObject*)frame, "f_locals");
             if (locals == NULL) {
-                printf("ERR:%s:%s locals is null, typycal cannot test this frame.\n", file_name, f_name);
+                printf("%s:%s locals is null, typycal cannot test this frame.\n", file_name.c_str(), f_name.c_str());
             }
             if (PyDict_CheckExact(frame->f_locals)) {
                 int argc = frame->f_code->co_argcount;
@@ -37,7 +30,7 @@ PyObject* typycal_evalframe(PyFrameObject* frame, int exc) {
                 analyze_types(file_name, f_name, vals, argc, res);
                 return res;
             } else {
-                printf("Failed to infer type of frame %s", f_name);
+                printf("Failed to infer type of frame %s", f_name.c_str());
             }
         }
 

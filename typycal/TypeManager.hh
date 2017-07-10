@@ -18,9 +18,9 @@ std::string get_type(PyObject* ob);
 
 
 std::string sequence_type(PyObject* ob) {
-    int len = PySequence_Length(ob);
+    Py_ssize_t len = PySequence_Length(ob);
     std::string s = "["s;
-    for (int i = 0; i < len; i++) {
+    for (Py_ssize_t i = 0; i < len; i++) {
             s += get_type(PySequence_GetItem(ob, i));
             if (i != len - 1) {
                 s += ", "s;
@@ -81,10 +81,10 @@ std::string get_type(PyObject* ob) {
 }
 
 
-void analyze_types(const char* file, const char* frame, PyObject* args, int argc, PyObject* ret) {
+void analyze_types(std::string file, std::string frame, PyObject* args, int argc, PyObject* ret) {
     json out;
-    out["file"s] = std::string(file);
-    out["name"s] = std::string(frame);
+    out["file"s] = file;
+    out["name"s] = frame;
     for (int i = argc - 1; i >= 0; i--) {
         PyObject* arg = PySequence_GetItem(args, i);
         if (arg != NULL) {
