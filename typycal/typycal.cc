@@ -11,8 +11,9 @@
 
 extern "C" {
 
+//TODO: distutils.sysconfig.get_python_lib(stdlib=True)
 
-// The main frame hook, gestate the name of the type of objecstate, and serializes it to the store for later analysis.
+// The main frame hook, generate the name of the type of objecstate, and serializes it to the store for later analysis.
 PyObject* typycal_evalframe(PyFrameObject* frame, int exc) {
     PyObject* err = PyErr_Occurred();
     bool error = false;
@@ -24,8 +25,7 @@ PyObject* typycal_evalframe(PyFrameObject* frame, int exc) {
     } else {
         const char* file_name = PyUnicode_AsUTF8(frame->f_code->co_filename);
         const char* f_name = PyUnicode_AsUTF8(frame->f_code->co_name);
-        bool check = whitelisted(file_name);
-        if (strcmp(f_name, "<module>") != 0 && check) {
+        if (strcmp(f_name, "<module>") != 0 && whitelisted(std::string(file_name))) {
             PyObject* locals = PyObject_GetAttrString((PyObject*)frame, "f_locals");
             if (locals == NULL) {
                 printf("ERR:%s:%s locals is null, typycal cannot test this frame.\n", file_name, f_name);
@@ -34,14 +34,11 @@ PyObject* typycal_evalframe(PyFrameObject* frame, int exc) {
                 int argc = frame->f_code->co_argcount;
                 PyObject* vals = PyMapping_Items(locals);
                 PyObject* res = _PyEval_EvalFrameDefault(frame, exc);
-                PyObject* ret = frame->f_valuestack[0];
-                analyze_types(file_name, f_name, vals, argc, ret);
-                Py_XDECREF(vals);
+                analyze_types(file_name, f_name, vals, argc, res);
                 return res;
             } else {
                 printf("Failed to infer type of frame %s", f_name);
             }
-            Py_XDECREF(locals);
         }
 
     }
@@ -62,6 +59,7 @@ static PyObject *typycal_unhook(PyObject *self) {
 
 static PyObject *typycal_hook(PyObject *self, PyObject* path) {
 	Py_INCREF(path);
+	set_lib_path();
 	PyThreadState* state = PyThreadState_Get();
 	_PyFrameEvalFunction func = state->interp->eval_frame;
 	state->interp->eval_frame = typycal_evalframe;

@@ -1,12 +1,21 @@
 #include "Python.h"
 #include <string>
 #include <iostream>
+#include <set>
+#include <fstream>
 #include "json.hpp"
 
 using json = nlohmann::json;
 using namespace std::string_literals;
 
+// we keep track of hashed signatures to not duplicate writing them
+std::set<json> signatures;
+
+std::ofstream output("output.log"s);
+
 std::string get_type(PyObject* ob);
+
+
 
 std::string sequence_type(PyObject* ob) {
     int len = PySequence_Length(ob);
@@ -42,7 +51,6 @@ std::string callable_type(PyObject* ob) {
         std::string s = "Callable["s;
         PyObject* dundername = PyObject_GetAttrString(ob, "__name__");
         char* name = PyUnicode_AsUTF8(dundername);
-        Py_XDECREF(dundername);
         s += name;
         s += "]"s;
         return s;
@@ -61,8 +69,10 @@ std::string get_type(PyObject* ob) {
         return "None"s;
     } else if(strcmp(name, "int") == 0) {
         return "int"s;
-    } else if(strcmp(name, "list") == 0) {
-        return list_type(ob);
+	} else if (strcmp(name, "list") == 0) {
+		return list_type(ob);
+	} else if (strcmp(name, "tuple") == 0) {
+		return tuple_type(ob);
     } else if(strcmp(name, "function") == 0 || strcmp(name, "builtin_function_or_method") == 0) {
         return callable_type(ob);
     } else {
@@ -73,20 +83,26 @@ std::string get_type(PyObject* ob) {
 
 void analyze_types(const char* file, const char* frame, PyObject* args, int argc, PyObject* ret) {
     json out;
-    out["file"] = file;
-    out["name"] = frame;
+    out["file"s] = std::string(file);
+    out["name"s] = std::string(frame);
     for (int i = argc - 1; i >= 0; i--) {
         PyObject* arg = PySequence_GetItem(args, i);
         if (arg != NULL) {
-            const char* name = PyUnicode_AsUTF8(PySequence_GetItem(arg, 0));
+            std::string name(PyUnicode_AsUTF8(PySequence_GetItem(arg, 0)));
             PyObject* ob = PySequence_GetItem(arg, 1);
-            out["args"][name] = get_type(ob);
-            Py_XDECREF(ob);
-        }
-        Py_XDECREF(arg);
+            out["args"s][name] = get_type(ob);
+        };
     }
     if (ret != NULL) {
-        out["ret"] = get_type(ret);
-		std::cout << out.dump() << std::endl;
+		if (PyBool_Check(ret))
+		{
+			out["ret"s] = "bool"s;
+		} else {
+			out["ret"s] = get_type(ret);
+		}
+		if (signatures.find(out) == signatures.end()) {
+			signatures.emplace(out);
+			output << out.dump() << std::endl;
+		}
 	}
 }
