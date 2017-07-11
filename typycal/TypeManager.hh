@@ -11,10 +11,9 @@ using namespace std::string_literals;
 // we keep track of hashed signatures to not duplicate writing them
 std::set<json> signatures;
 
-std::ofstream output("output.log"s);
+std::ofstream output;
 
 std::string get_type(PyObject* ob);
-
 
 
 std::string sequence_type(PyObject* ob) {

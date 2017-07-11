@@ -53,6 +53,7 @@ static PyObject *typycal_unhook(PyObject *self) {
 static PyObject *typycal_hook(PyObject *self, PyObject* path) {
 	Py_INCREF(path);
 	set_lib_path();
+	init_log(path);
 	PyThreadState* state = PyThreadState_Get();
 	_PyFrameEvalFunction func = state->interp->eval_frame;
 	state->interp->eval_frame = typycal_evalframe;

@@ -9,6 +9,16 @@ bool ends_with(std::string const & str, std::string const & end)
     return std::equal(end.rbegin(), end.rend(), str.rbegin());
 }
 
+void init_log(PyObject* path) {
+	Py_ssize_t len;
+	const char* file = PyUnicode_AsUTF8AndSize(path, &len);
+	if (len == 0) {
+		output = std::ofstream("output.log");
+	} else {
+		output = std::ofstream(file);
+	}
+}
+
 void set_lib_path() {
 	PyObject* sysconfig = PyImport_ImportModule("sysconfig");
 	PyObject* getpath = PyObject_GetAttrString(sysconfig, "get_path");
