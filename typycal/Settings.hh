@@ -23,6 +23,8 @@ void set_lib_path() {
 bool whitelisted(std::string path, std::string name) {
     if (name == "<module>"s) {
 	    return false;
+	} else if (name == "<dictcomp>"s || name == "<setcomp>"s || name == "<genexpr>"s || name == "<listcomp>"s) {
+		return false;
 	} else if (path == "<stdin>"s) {
 		return true;
 	} else if (!ends_with(path, ".py")) {
