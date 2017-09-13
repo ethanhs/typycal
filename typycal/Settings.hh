@@ -1,6 +1,7 @@
 #include "Python.h"
 #include <string>
-const char* lib_path;
+
+std::string lib_path;
 Py_ssize_t libpath_size;
 
 bool ends_with(std::string const & str, std::string const & end)
@@ -14,7 +15,8 @@ void init_log(PyObject* path) {
 	const char* file = PyUnicode_AsUTF8AndSize(path, &len);
 	if (len == 0) {
 		output = std::ofstream("output.log");
-	} else {
+	} 
+	else {
 		output = std::ofstream(file);
 	}
 }
@@ -30,26 +32,31 @@ void set_lib_path() {
 	}
 }
 
-bool whitelisted(std::string path, std::string name) {
-    if (name == "<module>"s) {
-	    return false;
-	} else if (name == "<dictcomp>"s || name == "<setcomp>"s || name == "<genexpr>"s || name == "<listcomp>"s) {
-		return false;
-	} else if (path == "<stdin>"s) {
-		return true;
-	} else if (!ends_with(path, ".py")) {
-		return false;
-	} else {
-		// ignore files that start with the lib prefix. Ignores a _lot_ of noise. We compare case insensitive on Windows,
-		// as Windows is illogical.
+bool check_file(std::string const &path) {
+	//std::cout << path << std::endl;
+	return (path == "c:\\users\\ethanhs\\documents\\mypy\\mypy\\main.py"s) ? true : false;
+	// ignore files that start with the lib prefix. Ignores a _lot_ of noise. We compare case insensitive on Windows,
+	// as Windows is illogical.
 #ifdef _WIN32
-		if (_strnicmp(lib_path, path.c_str(), libpath_size) == 0) {
+	if (path.compare(0, 11, "C:\\Python36") == 0) {
 #else
-		if (path.compare(0, libpath_size, lib_path) == 0) {
+	if (path.compare(0, libpath_size, lib_path) == 0) {
 #endif // _WIN32
-			return false;
-		}
+		return false;
+	}
+	return true;
+}
+
+bool check_name(std::string const &name) {
+	if (name == "<listcomp>"s || name == "<genexpr>"s || name == "<setcomp>"s || name == "<dictcomp>"s) {
+		return false;
+	}
+	else {
 		return true;
 	}
 }
 
+class TypeManager
+{
+		
+};
