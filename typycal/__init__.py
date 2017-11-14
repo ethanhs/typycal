@@ -1,1 +1,0 @@
-from typycal import hook

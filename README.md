@@ -1,20 +1,19 @@
 # Typycal
 
-Typycal is a project to generate PEP 484 and 526 compliant stub files based on runtime types. The hope is to ease the
+Typycal is an experimental project to generate PEP 484 and 526 compliant stub files based on runtime types. The hope is to ease the
 creation of stub files for projects and allow more projects to take advantage of typing in Python.
-
 
 # Basic example
 
-    >>> import typycal
-    >>> typycal.hook('')
-    >>> def foo(a, b, c):
-    ...     return a + b, "%s" % c
+    >>> from _typycal import *
+    >>> hook()
+    True
+    >>> def foo(a,b,c):
+    ...     return "The answer to a + b + c is", a + b + c
     ...
     >>> foo(1,2,3)
-    <stdin>:foo:int int int  -> tuple
-    (3, '3')
-    >>>
+    {"frame" : "foo", "file" : "<stdin>", "args" : {"a" : "int", "b" : "int", "c" : "int"}, "ret" : "Tuple[str, int]"}
+    ('The answer to a + b + c is', 6)
     
 # Building
     
@@ -24,10 +23,5 @@ creation of stub files for projects and allow more projects to take advantage of
     ...
 
 # Status
-This project is in the planning stages. You can compile the typycal extension, and experiment with it,
-but the generation of stubs is in progress. Also, in complex places Typycal won't be able to deal with complex `Union`s,
-etc.
-
-# Usage
-The backend (written in C++ to be very fast) dumps types from functions and methods in
- and a command line tool (WIP) generates stubs based on collected information.
+This project is an experiment in how fast and with what accuracy an interpreter hook can collect type information. I have the
+interpeter hook running well, but there is no permanent logging, stub generation, or anything beyond an example.
